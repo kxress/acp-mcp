@@ -25,9 +25,11 @@ export async function startMcpServer(configPath?: string): Promise<void> {
     return closing;
   };
   try {
-    process.on("SIGINT", () => {
+    const closeAndExit = () => {
       void closeSessions().finally(() => process.exit(0));
-    });
+    };
+    process.on("SIGINT", closeAndExit);
+    process.on("SIGTERM", closeAndExit);
   } catch {
     /* Signal support varies by platform. */
   }

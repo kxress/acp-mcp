@@ -348,6 +348,65 @@ inside that agent is a separate choice.
 
 The built-in profiles are convenience presets, not a closed integration list.
 
+### Agent Client Protocol registry agents
+
+Every agent published in the
+[ACP registry](https://agentclientprotocol.com/get-started/registry) also has
+a built-in launch profile, so it can be used by agent ID without any
+configuration. Each profile mirrors the registry's documented launch command
+for its distribution channel (npm package binary, Python entry point, or
+standalone release binary):
+
+| Agent ID               | Launch command            | Distribution                  |
+| ---------------------- | ------------------------- | ----------------------------- |
+| `agoragentic`          | `agoragentic-mcp --acp`   | npm `agoragentic-mcp`         |
+| `amp`                 | `amp-acp`                 | registry binary               |
+| `auggie`               | `auggie --acp`            | npm `@augmentcode/auggie`     |
+| `autohand`             | `autohand-acp`            | npm `@autohandai/autohand-acp`|
+| `bob`                 | `bob acp`                 | npm `@ibm/bob`                |
+| `cline`               | `cline --acp`             | npm `cline`                   |
+| `codebuddy`            | `codebuddy --acp`          | npm `@tencent-ai/codebuddy-code` |
+| `command-code`          | `cmd acp` (`cmdc acp` on native Windows) | npm `command-code` |
+| `cortex`              | `cortex acp serve`        | registry binary               |
+| `corust`              | `corust-agent-acp`         | registry binary               |
+| `crow-cli`            | `crow-cli acp`             | registry binary               |
+| `cursor`              | `cursor-agent acp`         | Cursor agent package          |
+| `deepagents`          | `deepagents-acp`           | npm `deepagents-acp`          |
+| `devin`               | `devin acp`               | registry binary               |
+| `dimcode`             | `dimcode acp`             | npm `dimcode`                 |
+| `dirac`               | `dirac --acp`              | npm `dirac-cli`               |
+| `factory-droid`        | `droid exec --output-format acp-daemon` | npm `droid` |
+| `fast-agent`          | `fast-agent -x`            | Python `fast-agent-acp`       |
+| `gemini`              | `gemini --acp`             | npm `@google/gemini-cli`      |
+| `github-copilot`       | `copilot-language-server --acp` | npm `@github/copilot-language-server` |
+| `github-copilot-cli`   | `copilot --acp`            | npm `@github/copilot`         |
+| `glm`                 | `glm-acp-agent`            | npm `glm-acp-agent`           |
+| `goose`               | `goose acp`                | binary from goose releases    |
+| `grok-build`          | `grok agent stdio`         | npm `@xai-official/grok`      |
+| `harn`                | `harn serve acp`           | registry binary               |
+| `junie`               | `junie --acp=true`          | JetBrains Junie package       |
+| `kilo`                | `kilo acp`                 | npm `@kilocode/cli`           |
+| `kimchi`              | `kimchi --mode acp`        | registry binary               |
+| `kimi`                | `kimi acp`                 | registry binary               |
+| `minimax`             | `mcode acp`                | npm `@minimax-ai/code`        |
+| `minion-code`         | `minion-code acp`          | Python `minion-code`          |
+| `mistral-vibe`        | `vibe-acp`                 | binary from Mistral Vibe releases |
+| `nova`                | `nova acp`                 | npm `@compass-ai/nova`       |
+| `opencode-v2`         | `opencode acp`             | ACP v2                        |
+| `pi`                  | `pi-acp`                   | npm `pi-acp`                  |
+| `poolside`            | `pool acp`                 | registry binary               |
+| `qoder`               | `qodercli --acp`           | npm `@qoder-ai/qodercli`      |
+| `qwen`                | `qwen --acp --experimental-skills` | npm `@qwen-code/qwen-code` |
+| `sigit`              | `sigit`                    | npm `@smbcloud/sigit`         |
+| `stakpak`             | `stakpak acp`              | registry binary               |
+| `vtcode`              | `vtcode acp`               | registry binary               |
+
+These profiles describe how to launch each registry agent; protocol
+conformance, models, and authentication remain owned by the downstream agent.
+Install and authenticate the agent using its own instructions (the profile's
+install hint names the package or release archive), then select it by agent
+ID. Any profile can be overridden per agent in trusted configuration.
+
 ## Bring your own ACP agent
 
 Any compatible stdio ACP server can be registered in trusted configuration:

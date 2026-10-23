@@ -2,6 +2,28 @@
 
 ## 0.2.5 (unreleased)
 
+### Added
+
+- Add built-in launch profiles for every agent published in the [Agent Client
+  Protocol registry](https://agentclientprotocol.com/get-started/registry)
+  (Amp, Auggie, Bob, Cline, Copilot, Cursor, Devin, Gemini CLI, GLM Agent,
+  goose, Grok Build, Junie, Kilo, Kimchi, Kimi CLI, MiniMax Code, Mistral Vibe,
+  Nova, OpenCode V2, Poolside, Qoder CLI, Qwen Code, siGit Code, Stakpak, and
+  more), mirroring each registry `agent.json` launch command so agents work by
+  ID without extra configuration.
+- Add a built-in `command-code` profile for [Command
+  Code](https://commandcode.ai/docs/acp): `cmd acp` (`cmdc acp` on native
+  Windows), with the Node.js 22+ prerequisite and headless/`cmd login`
+  authentication routes in the install hint.
+- Pin the `opencode-v2` profile to ACP v2 (`acpProtocol: "v2"`) so the v2-only
+  registry agent no longer defaults to the v1 driver, and point the
+  `mistral-vibe` install hint at the official Mistral Vibe release archives.
+- Guarantee agent process teardown: `stopAgent` now escalates to a
+  whole-process-tree SIGKILL (POSIX process groups; `taskkill /T /F` on
+  Windows) when an agent ignores stdin EOF, live agent processes are tracked
+  and force-terminated on server exit, and SIGTERM now shuts the server down
+  like SIGINT so idle agents no longer survive host shutdown.
+
 ### Changed
 
 - Migrate the runtime from Deno to Node.js following [Deno's announcement that
