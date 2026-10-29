@@ -170,7 +170,10 @@ export async function startAgent(definition: AgentDefinition, cwd: string) {
   }).spawn();
   liveChildren.add(child);
   installExitHooks();
-  void child.status.finally(() => liveChildren.delete(child));
+  void child.status.then(
+    () => liveChildren.delete(child),
+    () => liveChildren.delete(child),
+  );
   const tail: string[] = [];
   const stderrDone = (async () => {
     const decoder = new TextDecoder();
