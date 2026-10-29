@@ -2,6 +2,7 @@ import process from "node:process";
 import * as nodeFs from "#fs";
 import { dirname, isAbsolute, join, resolve } from "node:path";
 import {
+  canonicalAgentId,
   type AgentMap,
   builtInAgents,
   parseAgentConfig,
@@ -53,6 +54,27 @@ function mergeObjects(base: unknown, overlay: unknown): unknown {
           : value;
   }
   return result;
+}
+
+function canonicalizeAgentConfigIds(
+  config: Record<string, unknown>,
+  path: string,
+): Record<string, unknown> {
+  if (!isRecord(config.agents)) return config;
+  const agents = Object.create(null) as Record<string, unknown>;
+  const sourceIds = new Map<string, string>();
+  for (const [sourceId, definition] of Object.entries(config.agents)) {
+    const canonicalId = canonicalAgentId(sourceId);
+    const existingId = sourceIds.get(canonicalId);
+    if (existingId !== undefined) {
+      throw new Error(
+        `Config file '${path}': agents.${existingId} and agents.${sourceId} both configure '${canonicalId}'; use only the canonical ID`,
+      );
+    }
+    sourceIds.set(canonicalId, sourceId);
+    agents[canonicalId] = definition;
+  }
+  return { ...config, agents };
 }
 
 async function readConfig(path: string): Promise<Record<string, unknown>> {
@@ -125,9 +147,9 @@ function validateProjectConfig(
       }
     }
     if (raw.implementation !== undefined) {
-      if (agentId !== "antigravity") {
+      if (agentId !== "antigravity-acp") {
         throw new Error(
-          `Config file '${path}': agents.${agentId}.implementation is only valid for 'antigravity'`,
+          `Config file '${path}': agents.${agentId}.implementation is only valid for 'antigravity-acp'`,
         );
       }
       if (
@@ -136,7 +158,7 @@ function validateProjectConfig(
         )
       ) {
         throw new Error(
-          `Config file '${path}': agents.antigravity.implementation must be 'official', 'refined', or 'agy'`,
+          `Config file '${path}': agents.antigravity-acp.implementation must be 'official', 'refined', or 'agy'`,
         );
       }
     }
@@ -214,7 +236,10 @@ export async function resolveConfiguration(
   if (home) {
     homePath = join(home, ".acp-mcp.json");
     if (await exists(homePath)) {
-      const value = await readConfig(homePath);
+      const value = canonicalizeAgentConfigIds(
+        await readConfig(homePath),
+        homePath,
+      );
       // Home configuration is trusted and may define launch/runtime details.
       parseAgentConfig(value, homePath);
       configObjects.push({ path: homePath, kind: "home", value });
@@ -226,7 +251,7 @@ export async function resolveConfiguration(
     ? []
     : await projectConfigPaths(cwd)) {
     if (homePath && identity(path) === identity(homePath)) continue;
-    const value = await readConfig(path);
+    const value = canonicalizeAgentConfigIds(await readConfig(path), path);
     validateProjectConfig(value, path);
     configObjects.push({ path, kind: "project", value });
     sources.push({ kind: "project", path });

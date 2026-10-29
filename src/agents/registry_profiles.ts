@@ -44,20 +44,20 @@ export function registryAgentProfiles(): AgentMap {
   const agents = Object.assign(
     Object.create(null) as AgentMap,
     {
-      agoragentic: {
+      "agoragentic-acp": {
         command: NPM_PACKAGES.agoragentic.bin,
         args: ["--acp"],
         supportedProtocols: ["v1"],
         displayName: "Agoragentic",
         installHint: `Install with npm install -g ${NPM_PACKAGES.agoragentic.pkg}, or run npx -y ${NPM_PACKAGES.agoragentic.pkg} --acp. Requires an Agoragentic account and USDC balance on Base.`,
       },
-      amp: {
+      "amp-acp": {
         command: "amp-acp",
         args: [],
         supportedProtocols: ["v1"],
         displayName: "Amp",
         installHint:
-          "Install the Amp ACP adapter binary from https://github.com/agentclientprotocol/registry (amp-acp) and add its directory to PATH; configure the absolute path in the acp-mcp agent config. Requires Amp authentication.",
+          "Use the Amp ACP registry entry at https://agentclientprotocol.com/registry to find its platform-specific release archive, then add the installed binary's directory to PATH and configure its absolute path in the acp-mcp agent config. Requires Amp authentication.",
       },
       auggie: {
         command: NPM_PACKAGES.auggie.bin,
@@ -81,43 +81,43 @@ export function registryAgentProfiles(): AgentMap {
         installHint: `Install with npm install -g ${NPM_PACKAGES.bob.pkg}, or run npx -y ${NPM_PACKAGES.bob.pkg} acp. Requires IBM watsonx Orchestrate authentication.`,
       },
       "command-code": {
-      command: process.platform === "win32" ? "cmdc" : "cmd",
-      args: ["acp"],
-      supportedProtocols: ["v1"],
-      displayName: "Command Code",
-      runtimePrerequisites: [{ command: "node", minimumVersion: "22.0.0" }],
-      installHint:
-        "Install Node.js 22 or later, then npm install -g command-code. Authenticate once with cmd login in a terminal, or set COMMAND_CODE_API_KEY for headless use. The ACP server is 'cmd acp' (native Windows alias: cmdc acp; the full name command-code works everywhere). If 'cmd acp' exits with 'the acp mod is disabled', remove 'acp' from mods.disabled in Command Code settings.",
-    },
-    cline: {
+        command: process.platform === "win32" ? "cmdc" : "cmd",
+        args: ["acp"],
+        supportedProtocols: ["v1"],
+        displayName: "Command Code",
+        runtimePrerequisites: [{ command: "node", minimumVersion: "22.0.0" }],
+        installHint:
+          "Install Node.js 22 or later, then npm install -g command-code. Authenticate once with cmd login in a terminal, or set COMMAND_CODE_API_KEY for headless use. The ACP server is 'cmd acp' (native Windows alias: cmdc acp; the full name command-code works everywhere). If 'cmd acp' exits with 'the acp mod is disabled', remove 'acp' from mods.disabled in Command Code settings.",
+      },
+      cline: {
         command: NPM_PACKAGES.cline.bin,
         args: ["--acp"],
         supportedProtocols: ["v1"],
         displayName: "Cline",
         installHint: `Install with npm install -g ${NPM_PACKAGES.cline.pkg}, or run npx -y ${NPM_PACKAGES.cline.pkg} --acp. Configure provider API keys via Cline settings.`,
       },
-      codebuddy: {
+      "codebuddy-code": {
         command: NPM_PACKAGES.codebuddy.bin,
         args: ["--acp"],
         supportedProtocols: ["v1"],
         displayName: "Codebuddy Code",
         installHint: `Install with npm install -g ${NPM_PACKAGES.codebuddy.pkg}, or run npx -y ${NPM_PACKAGES.codebuddy.pkg} --acp. Requires Tencent Cloud authentication.`,
       },
-      cortex: {
+      "cortex-code": {
         command: "cortex",
         args: ["acp", "serve"],
         supportedProtocols: ["v1"],
         displayName: "Cortex Code",
         installHint:
-          "Install the Cortex Code binary from https://github.com/agentclientprotocol/registry (coco release archive) and add its directory to PATH; configure the absolute path in the acp-mcp agent config. Requires Snowflake authentication.",
+          "Use the Cortex Code ACP registry entry at https://agentclientprotocol.com/registry to find its platform-specific release archive, then add the installed binary's directory to PATH and configure its absolute path in the acp-mcp agent config. Requires Snowflake authentication.",
       },
-      corust: {
+      "corust-agent": {
         command: "corust-agent-acp",
         args: [],
         supportedProtocols: ["v1"],
         displayName: "Corust Agent",
         installHint:
-          "Install the corust-agent-acp binary from https://github.com/agentclientprotocol/registry and add its directory to PATH; configure the absolute path in the acp-mcp agent config.",
+          "Use the Corust Agent ACP registry entry at https://agentclientprotocol.com/registry to find its platform-specific release archive, then add the installed binary's directory to PATH and configure its absolute path in the acp-mcp agent config.",
       },
       "crow-cli": {
         command: "crow-cli",
@@ -125,7 +125,7 @@ export function registryAgentProfiles(): AgentMap {
         supportedProtocols: ["v1"],
         displayName: "crow-cli",
         installHint:
-          "Install the crow-cli binary from https://github.com/agentclientprotocol/registry and add its directory to PATH; configure the absolute path in the acp-mcp agent config.",
+          "Use the crow-cli ACP registry entry at https://agentclientprotocol.com/registry to find its platform-specific release archive, then add the installed binary's directory to PATH and configure its absolute path in the acp-mcp agent config.",
       },
       cursor: {
         command: "cursor-agent",
@@ -148,7 +148,7 @@ export function registryAgentProfiles(): AgentMap {
         supportedProtocols: ["v1"],
         displayName: "Devin",
         installHint:
-          "Install the Devin CLI binary from https://github.com/agentclientprotocol/registry (bin/devin) and add its directory to PATH; configure the absolute path in the acp-mcp agent config. Requires Cognition authentication.",
+          "Use the Devin ACP registry entry at https://agentclientprotocol.com/registry to find its platform-specific release archive, then add the installed binary's directory to PATH and configure its absolute path in the acp-mcp agent config. Requires Cognition authentication.",
       },
       dimcode: {
         command: NPM_PACKAGES.dimcode.bin,
@@ -201,7 +201,7 @@ export function registryAgentProfiles(): AgentMap {
         displayName: "Copilot CLI",
         installHint: `Install with npm install -g ${NPM_PACKAGES["github-copilot-cli"].pkg}, or run npx -y ${NPM_PACKAGES["github-copilot-cli"].pkg} --acp. Requires GitHub Copilot authentication.`,
       },
-      glm: {
+      "glm-acp-agent": {
         command: NPM_PACKAGES.glm.bin,
         args: [],
         supportedProtocols: ["v1"],
@@ -229,7 +229,7 @@ export function registryAgentProfiles(): AgentMap {
         supportedProtocols: ["v1"],
         displayName: "Harn",
         installHint:
-          "Install the harn binary from https://github.com/agentclientprotocol/registry and add its directory to PATH; configure the absolute path in the acp-mcp agent config.",
+          "Use the Harn ACP registry entry at https://agentclientprotocol.com/registry to find its platform-specific release archive, then add the installed binary's directory to PATH and configure its absolute path in the acp-mcp agent config.",
       },
       junie: {
         command: "junie",
@@ -262,7 +262,7 @@ export function registryAgentProfiles(): AgentMap {
         installHint:
           "Install the Kimi CLI binary and add its directory to PATH; configure the absolute path in the acp-mcp agent config. Requires Moonshot AI authentication.",
       },
-      minimax: {
+      "minimax-code": {
         command: NPM_PACKAGES.minimax.bin,
         args: ["acp"],
         supportedProtocols: ["v1"],
@@ -301,7 +301,7 @@ export function registryAgentProfiles(): AgentMap {
         installHint:
           "Install OpenCode v2 from https://opencode.ai and authenticate with opencode auth login. Configure command or args in the acp-mcp agent config if a v2-specific binary is required.",
       },
-      pi: {
+      "pi-acp": {
         command: NPM_PACKAGES.pi.bin,
         args: [],
         supportedProtocols: ["v1"],
@@ -314,7 +314,7 @@ export function registryAgentProfiles(): AgentMap {
         supportedProtocols: ["v1"],
         displayName: "Poolside",
         installHint:
-          "Install the Poolside CLI binary from https://github.com/agentclientprotocol/registry and add its directory to PATH; configure the absolute path in the acp-mcp agent config. Requires Poolside authentication.",
+          "Use the Poolside ACP registry entry at https://agentclientprotocol.com/registry to find its platform-specific release archive, then add the installed binary's directory to PATH and configure its absolute path in the acp-mcp agent config. Requires Poolside authentication.",
       },
       qoder: {
         command: NPM_PACKAGES.qoder.bin,
@@ -323,7 +323,7 @@ export function registryAgentProfiles(): AgentMap {
         displayName: "Qoder CLI",
         installHint: `Install with npm install -g ${NPM_PACKAGES.qoder.pkg}, or run npx -y ${NPM_PACKAGES.qoder.pkg} --acp. Requires Alibaba Cloud authentication.`,
       },
-      qwen: {
+      "qwen-code": {
         command: NPM_PACKAGES.qwen.bin,
         args: ["--acp", "--experimental-skills"],
         supportedProtocols: ["v1"],
@@ -343,7 +343,7 @@ export function registryAgentProfiles(): AgentMap {
         supportedProtocols: ["v1"],
         displayName: "Stakpak",
         installHint:
-          "Install the stakpak binary from https://github.com/agentclientprotocol/registry and add its directory to PATH; configure the absolute path in the acp-mcp agent config.",
+          "Use the Stakpak ACP registry entry at https://agentclientprotocol.com/registry to find its platform-specific release archive, then add the installed binary's directory to PATH and configure its absolute path in the acp-mcp agent config.",
       },
       vtcode: {
         command: "vtcode",
@@ -351,7 +351,7 @@ export function registryAgentProfiles(): AgentMap {
         supportedProtocols: ["v1"],
         displayName: "VT Code",
         installHint:
-          "Install the vtcode binary from https://github.com/agentclientprotocol/registry and add its directory to PATH; configure the absolute path in the acp-mcp agent config.",
+          "Use the VT Code ACP registry entry at https://agentclientprotocol.com/registry to find its platform-specific release archive, then add the installed binary's directory to PATH and configure its absolute path in the acp-mcp agent config.",
       },
     } satisfies AgentMap as AgentMap,
   );

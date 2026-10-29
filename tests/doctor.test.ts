@@ -52,7 +52,7 @@ test("doctor reports local configuration and agent checks without secrets", asyn
     const report = await diagnose(
       { configPath: config },
       dependencies(root, {
-        claude: {
+        "claude-acp": {
           command: "agent",
           args: ["--api-key", "DOCTOR_SECRET_VALUE"],
           env: { OPENROUTER_API_KEY: "DOCTOR_SECRET_VALUE" },
@@ -240,7 +240,7 @@ test("doctor reports a too-old local runtime prerequisite", async () => {
       dependencies(
         root,
         {
-          claude: {
+          "claude-acp": {
             command: "agent",
             args: [],
             acpProtocol: "v2",
@@ -254,11 +254,11 @@ test("doctor reports a too-old local runtime prerequisite", async () => {
     );
     if (
       report.status !== "errors" ||
-      report.checks.find((check) => check.id === "agent.claude.protocol")
-        ?.summary !== "claude: ACP v2 selected" ||
+      report.checks.find((check) => check.id === "agent.claude-acp.protocol")
+        ?.summary !== "claude-acp: ACP v2 selected" ||
       !report.checks.some(
         (check) =>
-          check.id === "runtime.claude.1" &&
+          check.id === "runtime.claude-acp.1" &&
           check.summary.includes("found v20.15.0"),
       )
     )
@@ -280,7 +280,7 @@ test("doctor identifies the selected Antigravity implementation and backend prer
       dependencies(
         root,
         {
-          antigravity: {
+          "antigravity-acp": {
             command: "refined-antigravity-acp",
             args: [],
             implementation: "refined",
@@ -306,17 +306,17 @@ test("doctor identifies the selected Antigravity implementation and backend prer
     if (
       !report.checks.some(
         (check) =>
-          check.id === "agent.antigravity.protocol" &&
+          check.id === "agent.antigravity-acp.protocol" &&
           check.summary.includes("refined implementation"),
       ) ||
       !report.checks.some(
         (check) =>
-          check.id === "agent.antigravity.required.REFINED_AGY_ACP_BIN" &&
+          check.id === "agent.antigravity-acp.required.REFINED_AGY_ACP_BIN" &&
           check.status === "error",
       ) ||
       !report.checks.some(
         (check) =>
-          check.id === "runtime.antigravity.1" && check.status === "ok",
+          check.id === "runtime.antigravity-acp.1" && check.status === "ok",
       )
     ) {
       throw new Error(
@@ -329,7 +329,7 @@ test("doctor identifies the selected Antigravity implementation and backend prer
       dependencies(
         root,
         {
-          antigravity: {
+          "antigravity-acp": {
             command: "refined-antigravity-acp",
             args: [],
             implementation: "refined",
@@ -351,7 +351,7 @@ test("doctor identifies the selected Antigravity implementation and backend prer
     if (
       configured.checks.find(
         (check) =>
-          check.id === "agent.antigravity.required.REFINED_AGY_ACP_BIN",
+          check.id === "agent.antigravity-acp.required.REFINED_AGY_ACP_BIN",
       )?.status !== "ok"
     )
       throw new Error("Doctor rejected an existing refined ACP backend");
@@ -370,7 +370,7 @@ test("doctor checks agy adapter identity and the explicitly supplied agy executa
       dependencies(
         root,
         {
-          antigravity: {
+          "antigravity-acp": {
             command: "agy-acp-windows-x64.exe",
             args: [],
             implementation: "agy",
@@ -393,11 +393,11 @@ test("doctor checks agy adapter identity and the explicitly supplied agy executa
     if (
       !missing.checks.some(
         (check) =>
-          check.id === "agent.antigravity.protocol" &&
+          check.id === "agent.antigravity-acp.protocol" &&
           check.summary.includes("agy implementation"),
       ) ||
       missing.checks.find(
-        (check) => check.id === "agent.antigravity.required.AGY_BIN",
+        (check) => check.id === "agent.antigravity-acp.required.AGY_BIN",
       )?.status !== "error"
     ) {
       throw new Error(
@@ -410,7 +410,7 @@ test("doctor checks agy adapter identity and the explicitly supplied agy executa
       dependencies(
         root,
         {
-          antigravity: {
+          "antigravity-acp": {
             command: "agy-acp-windows-x64.exe",
             args: [],
             implementation: "agy",
@@ -427,7 +427,7 @@ test("doctor checks agy adapter identity and the explicitly supplied agy executa
     );
     if (
       configured.checks.find(
-        (check) => check.id === "agent.antigravity.required.AGY_BIN",
+        (check) => check.id === "agent.antigravity-acp.required.AGY_BIN",
       )?.status !== "ok"
     )
       throw new Error("Doctor rejected an existing agy executable");

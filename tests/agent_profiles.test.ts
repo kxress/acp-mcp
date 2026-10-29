@@ -19,24 +19,24 @@ test("built-in profiles describe ACP launch routes without vendor behavior", asy
     )
       throw new Error("OpenCode native ACP launch changed");
     if (
-      agents.codex.command !== "codex-acp" ||
-      agents.codex.args.length !== 0 ||
-      agents.codex.env ||
-      agents.codex.modelConfigId ||
-      agents.codex.modelEnrichment ||
-      agents.codex.failureClassifier
+      agents["codex-acp"].command !== "codex-acp" ||
+      agents["codex-acp"].args.length !== 0 ||
+      agents["codex-acp"].env ||
+      agents["codex-acp"].modelConfigId ||
+      agents["codex-acp"].modelEnrichment ||
+      agents["codex-acp"].failureClassifier
     )
       throw new Error("Codex profile is not a plain ACP adapter profile");
     if (
-      agents.claude.command !== "claude-agent-acp" ||
-      agents.claude.args.length !== 0 ||
-      agents.claude.displayName !== "Claude Agent ACP" ||
-      agents.claude.env ||
-      JSON.stringify(agents.claude.protocolEnv?.v2) !==
+      agents["claude-acp"].command !== "claude-agent-acp" ||
+      agents["claude-acp"].args.length !== 0 ||
+      agents["claude-acp"].displayName !== "Claude Agent ACP" ||
+      agents["claude-acp"].env ||
+      JSON.stringify(agents["claude-acp"].protocolEnv?.v2) !==
         JSON.stringify({ CLAUDE_AGENT_ACP_EXPERIMENTAL_V2: "1" }) ||
-      agents.claude.modelConfigId ||
-      agents.claude.modelEnrichment ||
-      agents.claude.failureClassifier
+      agents["claude-acp"].modelConfigId ||
+      agents["claude-acp"].modelEnrichment ||
+      agents["claude-acp"].failureClassifier
     )
       throw new Error("Claude profile is not a plain ACP adapter profile");
     const expectedAntigravityCommand =
@@ -44,26 +44,28 @@ test("built-in profiles describe ACP launch routes without vendor behavior", asy
     const expectedAntigravityArgs =
       process.platform === "linux" ? ["--uid="] : [];
     if (
-      agents.antigravity.command !== expectedAntigravityCommand ||
-      JSON.stringify(agents.antigravity.args) !==
+      agents["antigravity-acp"].command !== expectedAntigravityCommand ||
+      JSON.stringify(agents["antigravity-acp"].args) !==
         JSON.stringify(expectedAntigravityArgs) ||
-      agents.antigravity.implementation !== "official" ||
-      agents.antigravity.env ||
-      agents.antigravity.modelConfigId ||
-      agents.antigravity.modelEnrichment ||
-      agents.antigravity.failureClassifier
+      agents["antigravity-acp"].implementation !== "official" ||
+      agents["antigravity-acp"].env ||
+      agents["antigravity-acp"].modelConfigId ||
+      agents["antigravity-acp"].modelEnrichment ||
+      agents["antigravity-acp"].failureClassifier
     )
       throw new Error("Antigravity profile has unexpected special behavior");
     if (
-      !agents.codex.installHint?.includes("@agentclientprotocol/codex-acp") ||
-      !agents.claude.installHint?.includes(
+      !agents["codex-acp"].installHint?.includes(
+        "@agentclientprotocol/codex-acp",
+      ) ||
+      !agents["claude-acp"].installHint?.includes(
         "@agentclientprotocol/claude-agent-acp",
       ) ||
-      !agents.claude.installHint?.includes("Node.js 22") ||
-      !agents.antigravity.installHint?.includes(
+      !agents["claude-acp"].installHint?.includes("Node.js 22") ||
+      !agents["antigravity-acp"].installHint?.includes(
         "Agent Client Protocol Registry",
       ) ||
-      !agents.antigravity.installHint?.includes("absolute path")
+      !agents["antigravity-acp"].installHint?.includes("absolute path")
     )
       throw new Error("Built-in profiles lack canonical install hints");
   } finally {
@@ -82,7 +84,7 @@ test("Antigravity implementation selection is explicit and profile-driven", asyn
       }),
     );
     const agents = await loadAgents(configPath);
-    const refined = agents.antigravity;
+    const refined = agents["antigravity-acp"];
     if (
       refined.implementation !== "refined" ||
       refined.command !== "refined-antigravity-acp" ||
@@ -117,7 +119,7 @@ test("Antigravity implementation selection is explicit and profile-driven", asyn
       configPath,
       JSON.stringify({ agents: { antigravity: { implementation: "agy" } } }),
     );
-    const agy = (await loadAgents(configPath)).antigravity;
+    const agy = (await loadAgents(configPath))["antigravity-acp"];
     const localAppData = process.env["LOCALAPPDATA"];
     const expectedAgyCommand =
       process.platform === "win32" && process.arch === "x64" && localAppData
@@ -145,7 +147,7 @@ test("Antigravity implementation selection is explicit and profile-driven", asyn
       await loadAgents(configPath);
     } catch (error) {
       rejected = String(error).includes(
-        "implementation is only valid for 'antigravity'",
+        "implementation is only valid for 'antigravity-acp'",
       );
     }
     if (!rejected) {
@@ -185,7 +187,7 @@ test("agy Antigravity profile preserves overrides and validates AGY_BIN paths wi
         },
       }),
     );
-    const definition = (await loadAgents(configPath)).antigravity;
+    const definition = (await loadAgents(configPath))["antigravity-acp"];
     if (
       definition.implementation !== "agy" ||
       definition.command !== adapter ||
@@ -249,7 +251,7 @@ test("refined Antigravity inherits generic profile overrides and requires an ins
         },
       }),
     );
-    const definition = (await loadAgents(configPath)).antigravity;
+    const definition = (await loadAgents(configPath))["antigravity-acp"];
     if (
       definition.implementation !== "refined" ||
       definition.command !== backend ||
@@ -293,8 +295,8 @@ test("list_agents identifies the explicitly selected agy implementation", async 
       JSON.stringify({ agents: { antigravity: { implementation: "agy" } } }),
     );
     const agents = await loadAgents(configPath);
-    agents.antigravity.command = process.execPath;
-    agents.antigravity.env = { AGY_BIN: process.execPath };
+    agents["antigravity-acp"].command = process.execPath;
+    agents["antigravity-acp"].env = { AGY_BIN: process.execPath };
     const manager = new SessionManager(agents);
     const server = createMcpServer(agents, manager);
     const mcp = await connectMcp(server);
@@ -308,7 +310,9 @@ test("list_agents identifies the explicitly selected agy implementation", async 
       )?.text;
       if (!listedText) throw new Error("list_agents returned no result");
       const listed = JSON.parse(listedText) as Array<Record<string, unknown>>;
-      const antigravity = listed.find((entry) => entry.id === "antigravity");
+      const antigravity = listed.find(
+        (entry) => entry.id === "antigravity-acp",
+      );
       if (
         antigravity?.implementation !== "agy" ||
         antigravity.displayName !== "Antigravity (agy ACP)"
@@ -341,11 +345,13 @@ test("Claude profile accepts generic command, args, and env overrides", async ()
     );
     const agents = await loadAgents(configPath);
     if (
-      agents.claude.command !== override.command ||
-      JSON.stringify(agents.claude.args) !== JSON.stringify(override.args) ||
-      agents.claude.env?.ACPMCP_TEST_PROVIDER_ENDPOINT !==
+      agents["claude-acp"].command !== override.command ||
+      JSON.stringify(agents["claude-acp"].args) !==
+        JSON.stringify(override.args) ||
+      agents["claude-acp"].env?.ACPMCP_TEST_PROVIDER_ENDPOINT !==
         override.env.ACPMCP_TEST_PROVIDER_ENDPOINT ||
-      agents.claude.protocolEnv?.v2?.CLAUDE_AGENT_ACP_EXPERIMENTAL_V2 !== "1"
+      agents["claude-acp"].protocolEnv?.v2?.CLAUDE_AGENT_ACP_EXPERIMENTAL_V2 !==
+        "1"
     ) {
       throw new Error("Generic Claude override lost profile protocol metadata");
     }
@@ -414,10 +420,10 @@ test("trusted config may override built-in launches and select ACP v2", async ()
     );
     const agents = await loadAgents(configPath);
     if (
-      agents.codex.command !== "replacement-codex-acp" ||
-      agents.codex.args.join("|") !== "--stdio|arg with spaces" ||
-      agents.codex.acpProtocol !== "v1" ||
-      agents.codex.supportedProtocols?.join() !== "v1" ||
+      agents["codex-acp"].command !== "replacement-codex-acp" ||
+      agents["codex-acp"].args.join("|") !== "--stdio|arg with spaces" ||
+      agents["codex-acp"].acpProtocol !== "v1" ||
+      agents["codex-acp"].supportedProtocols?.join() !== "v1" ||
       agents.custom_v2.command !== "custom-acp-v2" ||
       agents.custom_v2.args.length !== 0 ||
       agents.custom_v2.acpProtocol !== "v2"
@@ -548,12 +554,12 @@ test("Codex, Claude, and Antigravity use generic ACP discovery and failures", as
     "tests/fixtures/fake_acp_agent.ts",
     "--advertise-models",
   ];
-  for (const id of ["codex", "claude", "antigravity"]) {
+  for (const id of ["codex-acp", "claude-acp", "antigravity-acp"]) {
     agents[id] = {
       ...agents[id],
       command: process.execPath,
       args: fixtureArgs,
-      ...(id === "antigravity"
+      ...(id === "antigravity-acp"
         ? { env: { REFINED_AGY_ACP_BIN: process.execPath } }
         : {}),
     };
@@ -568,13 +574,13 @@ test("Codex, Claude, and Antigravity use generic ACP discovery and failures", as
     if (!Array.isArray(listed)) {
       throw new Error("list_agents did not return a list");
     }
-    const antigravity = listed.find((row) => row.id === "antigravity");
+    const antigravity = listed.find((row) => row.id === "antigravity-acp");
     if (
       antigravity?.implementation !== "refined" ||
       antigravity.displayName !== "Antigravity (Refined)"
     )
       throw new Error("list_agents did not expose the selected implementation");
-    for (const agentId of ["codex", "claude", "antigravity"]) {
+    for (const agentId of ["codex-acp", "claude-acp", "antigravity-acp"]) {
       const discovery = parseToolResult(
         await mcp.callTool("list_models", {
           agentId,
@@ -595,7 +601,7 @@ test("Codex, Claude, and Antigravity use generic ACP discovery and failures", as
         );
       }
       if (
-        agentId === "antigravity" &&
+        agentId === "antigravity-acp" &&
         JSON.stringify(models.map((model) => model.id).sort()) !==
           JSON.stringify([
             "opencode/available-without-metadata",
@@ -608,8 +614,8 @@ test("Codex, Claude, and Antigravity use generic ACP discovery and failures", as
         );
       }
       if (
-        agentId === "antigravity" &&
-        agents.antigravity.implementation !== "refined"
+        agentId === "antigravity-acp" &&
+        agents["antigravity-acp"].implementation !== "refined"
       )
         throw new Error("Refined profile selection was not retained");
       const failure = parseToolResult(
