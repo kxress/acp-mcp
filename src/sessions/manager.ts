@@ -1,5 +1,9 @@
 import process from "node:process";
-import type { AgentDefinition, AgentMap } from "../agents/config.ts";
+import {
+  canonicalAgentId,
+  type AgentDefinition,
+  type AgentMap,
+} from "../agents/config.ts";
 import type {
   AgentModelPolicy,
   ModelSize,
@@ -375,12 +379,16 @@ export class SessionManager {
     if (this.sessions.size >= this.maxSessions) {
       throw new Error(`Active session limit (${this.maxSessions}) reached`);
     }
-    const def = options.agentDefinition ?? this.agents[agentId];
-    if (!def) throw new Error(`Unknown agent: ${agentId}`);
+    const canonicalId = canonicalAgentId(agentId);
+    const def =
+      options.agentDefinition ??
+      this.agents[canonicalId] ??
+      this.agents[agentId];
+    if (!def) throw new Error(`Unknown agent: ${canonicalId}`);
     const protocol = def.acpProtocol ?? "v1";
     if (def.supportedProtocols && !def.supportedProtocols.includes(protocol)) {
       throw new Error(
-        `Agent profile '${agentId}' does not confirm ACP ${protocol} support`,
+        `Agent profile '${canonicalId}' does not confirm ACP ${protocol} support`,
       );
     }
     const launchDefinition = {
@@ -523,7 +531,7 @@ export class SessionManager {
       const acpId = sessionResponse.sessionId;
       const session: ManagedSession = {
         id: crypto.randomUUID(),
-        agentId,
+        agentId: canonicalId,
         agentDefinition: def,
         cwd,
         acpSessionId: acpId,

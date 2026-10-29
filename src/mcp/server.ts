@@ -3,7 +3,11 @@ import * as nodeFs from "#fs";
 import { McpServer } from "@modelcontextprotocol/server";
 import type { CallToolResult } from "@modelcontextprotocol/server";
 import { z } from "zod/v4";
-import type { AgentDefinition, AgentMap } from "../agents/config.ts";
+import {
+  canonicalAgentId,
+  type AgentDefinition,
+  type AgentMap,
+} from "../agents/config.ts";
 import type { ResolvedConfiguration } from "../config/discovery.ts";
 import {
   type AgentFailureClassifiers,
@@ -575,7 +579,7 @@ export function createMcpServer(
       },
     },
     async ({
-      agentId,
+      agentId: requestedAgentId,
       cwd,
       config,
       model,
@@ -585,6 +589,7 @@ export function createMcpServer(
       permissionPolicy,
       prompt,
     }) => {
+      const agentId = canonicalAgentId(requestedAgentId);
       try {
         const resolved = await resolveOperationConfig(cwd);
         const agent = resolved.agents[agentId];
@@ -705,7 +710,7 @@ export function createMcpServer(
     },
     async (
       {
-        agentId,
+        agentId: requestedAgentId,
         task: text,
         cwd,
         config,
@@ -719,6 +724,7 @@ export function createMcpServer(
       },
       extra,
     ) => {
+      const agentId = canonicalAgentId(requestedAgentId);
       let sessionId: string | undefined;
       let effectiveAgents = agents;
       let selectedModelForFailure: string | undefined;
@@ -966,7 +972,11 @@ export function createMcpServer(
         timeoutMs: z.number().int().min(1).max(120000).optional(),
       },
     },
-    async ({ agentId, cwd, enrich = false, timeoutMs = 30000 }, extra) => {
+    async (
+      { agentId: requestedAgentId, cwd, enrich = false, timeoutMs = 30000 },
+      extra,
+    ) => {
+      const agentId = canonicalAgentId(requestedAgentId);
       const resolved = await resolveOperationConfig(cwd);
       const definition = resolved.agents[agentId];
       if (!definition) {
@@ -1175,7 +1185,13 @@ export function createMcpServer(
           .optional(),
       },
     },
-    async ({ agentId, acpSessionId, cwd, permissionPolicy }) => {
+    async ({
+      agentId: requestedAgentId,
+      acpSessionId,
+      cwd,
+      permissionPolicy,
+    }) => {
+      const agentId = canonicalAgentId(requestedAgentId);
       let managedSessionId: string | undefined;
       try {
         const resolved = await resolveOperationConfig(cwd);

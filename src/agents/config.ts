@@ -34,6 +34,17 @@ export interface AgentDefinition {
 
 export type AgentMap = Record<string, AgentDefinition>;
 
+// Keep these legacy IDs for this transition release; remove them next release.
+const DEPRECATED_AGENT_ID_ALIASES = new Map([
+  ["codex", "codex-acp"],
+  ["claude", "claude-acp"],
+  ["antigravity", "antigravity-acp"],
+]);
+
+export function canonicalAgentId(agentId: string): string {
+  return DEPRECATED_AGENT_ID_ALIASES.get(agentId) ?? agentId;
+}
+
 const AGENT_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
 
 export const ANTIGRAVITY_AGY_ACP_RELEASE = {
@@ -89,7 +100,7 @@ export function builtInAgents(): AgentMap {
         modelEnrichment: "opencode_catalog",
         failureClassifier: "opencode",
       },
-      codex: {
+      "codex-acp": {
         command: "codex-acp",
         args: [],
         supportedProtocols: ["v1"],
@@ -97,7 +108,7 @@ export function builtInAgents(): AgentMap {
         installHint:
           "Install globally with npm install -g @agentclientprotocol/codex-acp, or explicitly configure npx -y @agentclientprotocol/codex-acp. CODEX_PATH can select another Codex executable.",
       },
-      claude: {
+      "claude-acp": {
         command: "claude-agent-acp",
         args: [],
         supportedProtocols: ["v1", "v2"],
@@ -109,7 +120,7 @@ export function builtInAgents(): AgentMap {
         installHint:
           "Install Node.js 22 or later, then install the official adapter with npm install -g @agentclientprotocol/claude-agent-acp. Configure command, args, or env in the acp-mcp agent config for a user-local installation or provider setup.",
       },
-      antigravity: {
+      "antigravity-acp": {
         command: antigravityCommand,
         args: process.platform === "linux" ? ["--uid="] : [],
         implementation: "official",
@@ -133,7 +144,7 @@ function antigravityProfiles(
       ? antigravityAgyAcpInstallPath(localAppData)
       : "agy-acp-windows-x64.exe";
   return {
-    official: agents.antigravity,
+    official: agents["antigravity-acp"],
     refined: {
       command: "refined-antigravity-acp",
       args: [],
@@ -176,6 +187,7 @@ export function parseAgentConfig(
   }
 
   const antigravityImplementations = antigravityProfiles(agents);
+  const configuredAgentIds = new Map<string, string>();
   for (const [id, rawDefinition] of Object.entries(parsed.agents)) {
     if (!isRecord(rawDefinition)) {
       throw new Error(
@@ -188,10 +200,18 @@ export function parseAgentConfig(
         `Config file '${path}': agent ID '${id}' must match ${AGENT_ID_PATTERN}`,
       );
     }
+    const canonicalId = canonicalAgentId(id);
+    const existingId = configuredAgentIds.get(canonicalId);
+    if (existingId !== undefined) {
+      throw new Error(
+        `Config file '${path}': agents.${existingId} and agents.${id} both configure '${canonicalId}'; use only the canonical ID`,
+      );
+    }
+    configuredAgentIds.set(canonicalId, id);
     if (def.implementation !== undefined) {
-      if (id !== "antigravity") {
+      if (canonicalId !== "antigravity-acp") {
         throw new Error(
-          `Config file '${path}': agent '${id}' implementation is only valid for 'antigravity'`,
+          `Config file '${path}': agent '${id}' implementation is only valid for 'antigravity-acp'`,
         );
       }
       if (
@@ -200,15 +220,15 @@ export function parseAgentConfig(
         def.implementation !== "agy"
       ) {
         throw new Error(
-          `Config file '${path}': agent 'antigravity' implementation must be 'official', 'refined', or 'agy'`,
+          `Config file '${path}': agent 'antigravity-acp' implementation must be 'official', 'refined', or 'agy'`,
         );
       }
     }
     const builtIn =
-      id === "antigravity"
+      canonicalId === "antigravity-acp"
         ? antigravityImplementations[def.implementation ?? "official"]
-        : Object.hasOwn(agents, id)
-          ? agents[id]
+        : Object.hasOwn(agents, canonicalId)
+          ? agents[canonicalId]
           : undefined;
     if (
       def.command !== undefined &&
@@ -264,8 +284,8 @@ export function parseAgentConfig(
     const models =
       def.models === undefined
         ? builtIn?.models
-        : validateModelPolicy(def.models, id, path);
-    agents[id] = {
+        : validateModelPolicy(def.models, canonicalId, path);
+    agents[canonicalId] = {
       ...builtIn,
       ...rawDefinition,
       command,

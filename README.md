@@ -241,7 +241,7 @@ For one request and one compact result, use `run_task`:
 
 ```json
 {
-  "agentId": "antigravity",
+  "agentId": "antigravity-acp",
   "task": "Review the failing test and propose the smallest correct fix.",
   "modelSize": "large",
   "thinkingEffort": "max",
@@ -342,9 +342,14 @@ inside that agent is a separate choice.
 | Agent ID      | ACP implementation                      | Notes                                                         |
 | ------------- | --------------------------------------- | ------------------------------------------------------------- |
 | `opencode`    | OpenCode `opencode acp`                 | ACP v1                                                        |
-| `codex`       | `@agentclientprotocol/codex-acp`        | ACP v1                                                        |
-| `claude`      | Claude Agent ACP                        | ACP v1 by default; experimental v2 can be selected explicitly |
-| `antigravity` | Selected Antigravity ACP implementation | Official Google implementation by default                     |
+| `codex-acp`       | `@agentclientprotocol/codex-acp`        | ACP v1                                                        |
+| `claude-acp`      | Claude Agent ACP                        | ACP v1 by default; experimental v2 can be selected explicitly |
+| `antigravity-acp` | Selected Antigravity ACP implementation | Official Google implementation by default                     |
+
+The older IDs `codex`, `claude`, and `antigravity` remain accepted as deprecated
+compatibility aliases for this transition release. Update trusted and project
+configuration to the canonical IDs; the aliases are planned for removal in the
+next release.
 
 The built-in profiles are convenience presets, not a closed integration list.
 
@@ -359,16 +364,19 @@ standalone release binary):
 
 | Agent ID               | Launch command            | Distribution                  |
 | ---------------------- | ------------------------- | ----------------------------- |
-| `agoragentic`          | `agoragentic-mcp --acp`   | npm `agoragentic-mcp`         |
-| `amp`                 | `amp-acp`                 | registry binary               |
+| `agoragentic-acp`      | `agoragentic-mcp --acp`   | npm `agoragentic-mcp`         |
+| `amp-acp`              | `amp-acp`                 | registry binary               |
+| `antigravity-acp`      | Antigravity ACP binary    | registry binary               |
 | `auggie`               | `auggie --acp`            | npm `@augmentcode/auggie`     |
 | `autohand`             | `autohand-acp`            | npm `@autohandai/autohand-acp`|
 | `bob`                 | `bob acp`                 | npm `@ibm/bob`                |
+| `claude-acp`           | `claude-agent-acp`        | npm `@agentclientprotocol/claude-agent-acp` |
 | `cline`               | `cline --acp`             | npm `cline`                   |
-| `codebuddy`            | `codebuddy --acp`          | npm `@tencent-ai/codebuddy-code` |
-| `command-code`          | `cmd acp` (`cmdc acp` on native Windows) | npm `command-code` |
-| `cortex`              | `cortex acp serve`        | registry binary               |
-| `corust`              | `corust-agent-acp`         | registry binary               |
+| `codebuddy-code`       | `codebuddy --acp`          | npm `@tencent-ai/codebuddy-code` |
+| `codex-acp`            | `codex-acp`                | npm `@agentclientprotocol/codex-acp` |
+| `command-code`         | `cmd acp` (`cmdc acp` on native Windows) | npm `command-code` |
+| `cortex-code`          | `cortex acp serve`        | registry binary               |
+| `corust-agent`         | `corust-agent-acp`         | registry binary               |
 | `crow-cli`            | `crow-cli acp`             | registry binary               |
 | `cursor`              | `cursor-agent acp`         | Cursor agent package          |
 | `deepagents`          | `deepagents-acp`           | npm `deepagents-acp`          |
@@ -380,7 +388,7 @@ standalone release binary):
 | `gemini`              | `gemini --acp`             | npm `@google/gemini-cli`      |
 | `github-copilot`       | `copilot-language-server --acp` | npm `@github/copilot-language-server` |
 | `github-copilot-cli`   | `copilot --acp`            | npm `@github/copilot`         |
-| `glm`                 | `glm-acp-agent`            | npm `glm-acp-agent`           |
+| `glm-acp-agent`        | `glm-acp-agent`            | npm `glm-acp-agent`           |
 | `goose`               | `goose acp`                | binary from goose releases    |
 | `grok-build`          | `grok agent stdio`         | npm `@xai-official/grok`      |
 | `harn`                | `harn serve acp`           | registry binary               |
@@ -388,15 +396,15 @@ standalone release binary):
 | `kilo`                | `kilo acp`                 | npm `@kilocode/cli`           |
 | `kimchi`              | `kimchi --mode acp`        | registry binary               |
 | `kimi`                | `kimi acp`                 | registry binary               |
-| `minimax`             | `mcode acp`                | npm `@minimax-ai/code`        |
+| `minimax-code`         | `mcode acp`                | npm `@minimax-ai/code`        |
 | `minion-code`         | `minion-code acp`          | Python `minion-code`          |
 | `mistral-vibe`        | `vibe-acp`                 | binary from Mistral Vibe releases |
 | `nova`                | `nova acp`                 | npm `@compass-ai/nova`       |
 | `opencode-v2`         | `opencode acp`             | ACP v2                        |
-| `pi`                  | `pi-acp`                   | npm `pi-acp`                  |
+| `pi-acp`               | `pi-acp`                   | npm `pi-acp`                  |
 | `poolside`            | `pool acp`                 | registry binary               |
 | `qoder`               | `qodercli --acp`           | npm `@qoder-ai/qodercli`      |
-| `qwen`                | `qwen --acp --experimental-skills` | npm `@qwen-code/qwen-code` |
+| `qwen-code`            | `qwen --acp --experimental-skills` | npm `@qwen-code/qwen-code` |
 | `sigit`              | `sigit`                    | npm `@smbcloud/sigit`         |
 | `stakpak`             | `stakpak acp`              | registry binary               |
 | `vtcode`              | `vtcode acp`               | registry binary               |
@@ -447,7 +455,7 @@ arguments, environment variables, or ACP protocol definitions.
 
 ## Antigravity implementations
 
-The built-in `antigravity` profile supports three explicit implementations:
+The built-in `antigravity-acp` profile supports three explicit implementations:
 
 | Selector   | Implementation                      | Use when                                                 |
 | ---------- | ----------------------------------- | -------------------------------------------------------- |
@@ -463,7 +471,7 @@ The default is `official`.
 ```json
 {
   "agents": {
-    "antigravity": {
+    "antigravity-acp": {
       "implementation": "official"
     }
   }
@@ -478,7 +486,7 @@ The default is `official`.
 ```json
 {
   "agents": {
-    "antigravity": {
+    "antigravity-acp": {
       "implementation": "refined"
     }
   }
@@ -493,7 +501,7 @@ The default is `official`.
 ```json
 {
   "agents": {
-    "antigravity": {
+    "antigravity-acp": {
       "implementation": "agy"
     }
   }
@@ -705,7 +713,7 @@ live ACP implementation.
 ```json
 {
   "agents": {
-    "antigravity": {
+    "antigravity-acp": {
       "implementation": "agy",
       "models": {
         "allowedModels": ["claude-*", "gemini-*"],

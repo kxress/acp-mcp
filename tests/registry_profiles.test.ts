@@ -12,12 +12,12 @@ interface ExpectedProfile {
 
 const REGISTRY_PROFILES: Array<ExpectedProfile> = [
   {
-    id: "agoragentic",
+    id: "agoragentic-acp",
     command: "agoragentic-mcp",
     args: ["--acp"],
     displayName: "Agoragentic",
   },
-  { id: "amp", command: "amp-acp", args: [], displayName: "Amp" },
+  { id: "amp-acp", command: "amp-acp", args: [], displayName: "Amp" },
   {
     id: "auggie",
     command: "auggie",
@@ -31,22 +31,27 @@ const REGISTRY_PROFILES: Array<ExpectedProfile> = [
     displayName: "Autohand Code",
   },
   { id: "bob", command: "bob", args: ["acp"], displayName: "Bob" },
-  { id: "command-code", command: "cmd", args: ["acp"], displayName: "Command Code" },
+  {
+    id: "command-code",
+    command: process.platform === "win32" ? "cmdc" : "cmd",
+    args: ["acp"],
+    displayName: "Command Code",
+  },
   { id: "cline", command: "cline", args: ["--acp"], displayName: "Cline" },
   {
-    id: "codebuddy",
+    id: "codebuddy-code",
     command: "codebuddy",
     args: ["--acp"],
     displayName: "Codebuddy Code",
   },
   {
-    id: "cortex",
+    id: "cortex-code",
     command: "cortex",
     args: ["acp", "serve"],
     displayName: "Cortex Code",
   },
   {
-    id: "corust",
+    id: "corust-agent",
     command: "corust-agent-acp",
     args: [],
     displayName: "Corust Agent",
@@ -103,7 +108,12 @@ const REGISTRY_PROFILES: Array<ExpectedProfile> = [
     args: ["--acp"],
     displayName: "Copilot CLI",
   },
-  { id: "glm", command: "glm-acp-agent", args: [], displayName: "GLM Agent" },
+  {
+    id: "glm-acp-agent",
+    command: "glm-acp-agent",
+    args: [],
+    displayName: "GLM Agent",
+  },
   { id: "goose", command: "goose", args: ["acp"], displayName: "goose" },
   {
     id: "grok-build",
@@ -122,7 +132,7 @@ const REGISTRY_PROFILES: Array<ExpectedProfile> = [
   },
   { id: "kimi", command: "kimi", args: ["acp"], displayName: "Kimi CLI" },
   {
-    id: "minimax",
+    id: "minimax-code",
     command: "mcode",
     args: ["acp"],
     displayName: "MiniMax Code",
@@ -146,7 +156,7 @@ const REGISTRY_PROFILES: Array<ExpectedProfile> = [
     args: ["acp"],
     displayName: "OpenCode V2",
   },
-  { id: "pi", command: "pi-acp", args: [], displayName: "pi ACP" },
+  { id: "pi-acp", command: "pi-acp", args: [], displayName: "pi ACP" },
   { id: "poolside", command: "pool", args: ["acp"], displayName: "Poolside" },
   {
     id: "qoder",
@@ -155,7 +165,7 @@ const REGISTRY_PROFILES: Array<ExpectedProfile> = [
     displayName: "Qoder CLI",
   },
   {
-    id: "qwen",
+    id: "qwen-code",
     command: "qwen",
     args: ["--acp", "--experimental-skills"],
     displayName: "Qwen Code",
@@ -246,7 +256,8 @@ test("built-in agents cover every ACP registry agent with launch-only profiles",
     }
     if (
       agents["command-code"].runtimePrerequisites?.[0]?.command !== "node" ||
-      agents["command-code"].runtimePrerequisites[0]?.minimumVersion !== "22.0.0"
+      agents["command-code"].runtimePrerequisites[0]?.minimumVersion !==
+        "22.0.0"
     ) {
       throw new Error("Command Code profile must require Node.js 22+");
     }

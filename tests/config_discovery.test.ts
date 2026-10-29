@@ -19,7 +19,7 @@ test("no files keeps built-ins, while home-only and project-only configs load", 
       cwd: project,
       homeDirectory: home,
     });
-    if (!absent.agents.antigravity || absent.sources.length) {
+    if (!absent.agents["antigravity-acp"] || absent.sources.length) {
       throw new Error("missing optional config disabled built-ins");
     }
 
@@ -31,7 +31,7 @@ test("no files keeps built-ins, while home-only and project-only configs load", 
       homeDirectory: home,
     });
     if (
-      projectOnly.agents.antigravity.implementation !== "agy" ||
+      projectOnly.agents["antigravity-acp"].implementation !== "agy" ||
       projectOnly.sources.length !== 1
     ) {
       throw new Error("project-only config was not discovered");
@@ -44,7 +44,9 @@ test("no files keeps built-ins, while home-only and project-only configs load", 
       cwd: join(root, "elsewhere"),
       homeDirectory: home,
     });
-    if (homeOnly.agents.antigravity.models?.deniedModels?.[0] !== "gpt-*") {
+    if (
+      homeOnly.agents["antigravity-acp"].models?.deniedModels?.[0] !== "gpt-*"
+    ) {
       throw new Error("home-only config was not loaded");
     }
   } finally {
@@ -92,7 +94,7 @@ test("hierarchical config merges home and project from outer to nearest", async 
       cwd: nested,
       homeDirectory: home,
     });
-    const agent = resolved.agents.antigravity;
+    const agent = resolved.agents["antigravity-acp"];
     if (
       agent.implementation !== "agy" ||
       agent.models?.default?.modelSize !== "medium" ||
@@ -136,10 +138,10 @@ test("project config is safe, arrays replace, and cannot inject launch data", as
       homeDirectory: home,
     });
     if (
-      resolved.agents.antigravity.command !== "trusted-command" ||
-      resolved.agents.antigravity.args.join() !== "--trusted" ||
-      resolved.agents.antigravity.env?.AGY_BIN !== "trusted-agy" ||
-      resolved.agents.antigravity.models?.allowedModels?.join() !== "c"
+      resolved.agents["antigravity-acp"].command !== "trusted-command" ||
+      resolved.agents["antigravity-acp"].args.join() !== "--trusted" ||
+      resolved.agents["antigravity-acp"].env?.AGY_BIN !== "trusted-agy" ||
+      resolved.agents["antigravity-acp"].models?.allowedModels?.join() !== "c"
     ) {
       throw new Error(
         "project configuration replaced trusted launch data or concatenated arrays",
@@ -288,7 +290,7 @@ test("explicit config is exact and disables home/project discovery", async () =>
     if (
       !resolved.explicit ||
       resolved.sources.length !== 1 ||
-      resolved.agents.antigravity.implementation !== "official"
+      resolved.agents["antigravity-acp"].implementation !== "official"
     ) {
       throw new Error("explicit configuration did not disable discovery");
     }
