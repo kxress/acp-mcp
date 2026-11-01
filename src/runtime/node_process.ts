@@ -64,6 +64,22 @@ export class SpawnedProcess {
   kill(signal?: NodeJS.Signals): boolean {
     return this.child.kill(signal);
   }
+
+  /**
+   * Signal the child's whole process group when it leads one (POSIX), so
+   * grandchildren (npx wrappers, batch chains) cannot survive a stop request.
+   */
+  killTree(signal: NodeJS.Signals): boolean {
+    if (process.platform !== "win32" && this.pid !== undefined) {
+      try {
+        process.kill(-this.pid, signal);
+        return true;
+      } catch {
+        /* Group already gone; fall back to the direct child. */
+      }
+    }
+    return this.child.kill(signal);
+  }
 }
 
 export class ProcessCommand {
@@ -88,6 +104,7 @@ export class ProcessCommand {
       ],
       windowsHide: true,
       shell: this.options.shell ?? false,
+      detached: process.platform !== "win32",
     });
     return new SpawnedProcess(child);
   }

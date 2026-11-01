@@ -105,6 +105,34 @@ export function quoteCmdStaticArgument(value: string): string {
   return `"${escaped.replace(/"/g, '""')}"`;
 }
 
+const liveChildren = new Set<SpawnedProcess>();
+let exitHooksInstalled = false;
+
+function killLiveChildren() {
+  for (const child of [...liveChildren]) {
+    try {
+      if (process.platform === "win32" && child.pid) {
+        void new ProcessCommand("taskkill.exe", {
+          args: ["/PID", String(child.pid), "/T", "/F"],
+          stdin: "null",
+          stdout: "null",
+          stderr: "null",
+        }).output();
+      } else {
+        child.killTree("SIGKILL");
+      }
+    } catch {
+      /* already exited */
+    }
+  }
+}
+
+function installExitHooks() {
+  if (exitHooksInstalled) return;
+  exitHooksInstalled = true;
+  process.on("exit", killLiveChildren);
+}
+
 export async function startAgent(definition: AgentDefinition, cwd: string) {
   for (const name of definition.requiredExecutableEnv ?? []) {
     const value = getAgentEnvironmentValue(definition, name);
@@ -140,6 +168,9 @@ export async function startAgent(definition: AgentDefinition, cwd: string) {
     stdout: "piped",
     stderr: "piped",
   }).spawn();
+  liveChildren.add(child);
+  installExitHooks();
+  void child.status.finally(() => liveChildren.delete(child));
   const tail: string[] = [];
   const stderrDone = (async () => {
     const decoder = new TextDecoder();
@@ -160,18 +191,23 @@ export async function stopAgent(
   } catch {
     /* already closed */
   }
-  let timer: ReturnType<typeof setTimeout> | undefined;
-  const exited = await Promise.race([
-    child.status.then(
-      () => true,
-      () => true,
-    ),
-    new Promise<boolean>((resolve) => {
-      timer = setTimeout(() => resolve(false), timeoutMs);
-    }),
-  ]);
-  if (timer !== undefined) clearTimeout(timer);
-  if (!exited && process.platform === "win32" && child.pid) {
+  const exitedWithin = async (ms: number) => {
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const done = await Promise.race([
+      child.status.then(
+        () => true,
+        () => true,
+      ),
+      new Promise<boolean>((resolve) => {
+        timer = setTimeout(() => resolve(false), ms);
+      }),
+    ]);
+    if (timer !== undefined) clearTimeout(timer);
+    return done;
+  };
+  if (await exitedWithin(timeoutMs)) return;
+  // Graceful close was ignored: force-terminate the whole process tree.
+  if (process.platform === "win32" && child.pid) {
     try {
       await new ProcessCommand("taskkill.exe", {
         args: ["/PID", String(child.pid), "/T", "/F"],
@@ -186,12 +222,16 @@ export async function stopAgent(
         /* already exited */
       }
     }
-  } else if (!exited) {
+  } else {
     try {
-      child.kill();
+      child.killTree("SIGKILL");
     } catch {
-      /* already exited */
+      try {
+        child.kill();
+      } catch {
+        /* already exited */
+      }
     }
   }
-  if (!exited) await child.status.catch(() => undefined);
+  await child.status.catch(() => undefined);
 }

@@ -4,6 +4,7 @@ import {
   type AgentModelPolicy,
   validateModelPolicy,
 } from "../models/policy.ts";
+import { registryAgentProfiles } from "./registry_profiles.ts";
 
 export interface AgentDefinition {
   command: string;
@@ -73,48 +74,52 @@ export function defaultConfigPath(): string {
 export function builtInAgents(): AgentMap {
   const antigravityCommand =
     process.platform === "win32" ? "agy_acp_server" : "agy_acp_server.par";
-  const agents = Object.assign(Object.create(null) as AgentMap, {
-    opencode: {
-      command: "opencode",
-      args: ["acp"],
-      supportedProtocols: ["v1"],
-      displayName: "OpenCode",
-      installHint:
-        "Install OpenCode and authenticate with opencode auth login.",
-      modelConfigId: "model",
-      modelEnrichment: "opencode_catalog",
-      failureClassifier: "opencode",
-    },
-    codex: {
-      command: "codex-acp",
-      args: [],
-      supportedProtocols: ["v1"],
-      displayName: "Codex",
-      installHint:
-        "Install globally with npm install -g @agentclientprotocol/codex-acp, or explicitly configure npx -y @agentclientprotocol/codex-acp. CODEX_PATH can select another Codex executable.",
-    },
-    claude: {
-      command: "claude-agent-acp",
-      args: [],
-      supportedProtocols: ["v1", "v2"],
-      runtimePrerequisites: [{ command: "node", minimumVersion: "22.0.0" }],
-      protocolEnv: {
-        v2: { CLAUDE_AGENT_ACP_EXPERIMENTAL_V2: "1" },
+  const agents = Object.assign(
+    Object.create(null) as AgentMap,
+    registryAgentProfiles(),
+    {
+      opencode: {
+        command: "opencode",
+        args: ["acp"],
+        supportedProtocols: ["v1"],
+        displayName: "OpenCode",
+        installHint:
+          "Install OpenCode and authenticate with opencode auth login.",
+        modelConfigId: "model",
+        modelEnrichment: "opencode_catalog",
+        failureClassifier: "opencode",
       },
-      displayName: "Claude Agent ACP",
-      installHint:
-        "Install Node.js 22 or later, then install the official adapter with npm install -g @agentclientprotocol/claude-agent-acp. Configure command, args, or env in the acp-mcp agent config for a user-local installation or provider setup.",
+      codex: {
+        command: "codex-acp",
+        args: [],
+        supportedProtocols: ["v1"],
+        displayName: "Codex",
+        installHint:
+          "Install globally with npm install -g @agentclientprotocol/codex-acp, or explicitly configure npx -y @agentclientprotocol/codex-acp. CODEX_PATH can select another Codex executable.",
+      },
+      claude: {
+        command: "claude-agent-acp",
+        args: [],
+        supportedProtocols: ["v1", "v2"],
+        runtimePrerequisites: [{ command: "node", minimumVersion: "22.0.0" }],
+        protocolEnv: {
+          v2: { CLAUDE_AGENT_ACP_EXPERIMENTAL_V2: "1" },
+        },
+        displayName: "Claude Agent ACP",
+        installHint:
+          "Install Node.js 22 or later, then install the official adapter with npm install -g @agentclientprotocol/claude-agent-acp. Configure command, args, or env in the acp-mcp agent config for a user-local installation or provider setup.",
+      },
+      antigravity: {
+        command: antigravityCommand,
+        args: process.platform === "linux" ? ["--uid="] : [],
+        implementation: "official",
+        supportedProtocols: ["v1"],
+        displayName: "Antigravity",
+        installHint:
+          "Install Google Antigravity ACP from the official Agent Client Protocol Registry. Configure the executable's absolute path in the acp-mcp agent config (Windows: agy_acp_server.exe); changing PATH is not required.",
+      },
     },
-    antigravity: {
-      command: antigravityCommand,
-      args: process.platform === "linux" ? ["--uid="] : [],
-      implementation: "official",
-      supportedProtocols: ["v1"],
-      displayName: "Antigravity",
-      installHint:
-        "Install Google Antigravity ACP from the official Agent Client Protocol Registry. Configure the executable's absolute path in the acp-mcp agent config (Windows: agy_acp_server.exe); changing PATH is not required.",
-    },
-  });
+  );
   return agents;
 }
 
