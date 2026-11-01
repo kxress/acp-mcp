@@ -84,7 +84,7 @@ Download the ZIP, checksum, and manifest. Verify the archive, then extract it to
 a stable application directory:
 
 ```powershell
-$version = "0.2.5"
+$version = "0.2.6"
 $archive = ".\acp-mcp-$version-windows-x86_64.zip"
 
 $expected = (Get-Content "${archive}.sha256").Split()[0]
@@ -112,7 +112,7 @@ Download the tarball, checksum, and manifest. Verify and extract the package,
 then install the executable in your user-local bin directory:
 
 ```sh
-version=0.2.5
+version=0.2.6
 archive="acp-mcp-$version-linux-x86_64.tar.gz"
 
 sha256sum -c "$archive.sha256"
@@ -136,7 +136,7 @@ Download the tarball, checksum, and manifest. Verify and extract the package,
 then install the executable in your user-local bin directory:
 
 ```sh
-version=0.2.5
+version=0.2.6
 archive="acp-mcp-$version-macos-arm64.tar.gz"
 
 shasum -a 256 -c "$archive.sha256"
